@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía: Perfiles Actitudinales de Tribus de Consumidoras</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!--
+        Plan de la Infografía (Actualizado):
+        1. Encabezado: Título principal.
+        2. Navegación Fija: Enlaces a cada sección de tribu y comparativa.
+        3. Secciones de Tribu (5):
+            - Título de la Tribu y Categoría de Producto.
+            - Párrafo introductorio con puntos clave actitudinales.
+            - Gráfico de Barras Horizontales (Chart.js) con 5 afirmaciones representativas.
+            - Texto explicativo del gráfico actitudinal.
+            - Gráfico de Dona para NSE (Nivel Socioeconómico).
+            - Gráfico de Barras para Rangos de Edad.
+            - Textos explicativos para gráficos de NSE y Edad (actualizados).
+        4. Sección Comparativa:
+            - Título.
+            - Párrafo introductorio.
+            - Gráfico Radar (Chart.js) comparando las 5 tribus en 6 dimensiones actitudinales.
+            - Texto explicativo del gráfico.
+        5. Pie de Página: Fuente.
+
+        Selección de Visualizaciones (Justificación):
+        - Gráfico de Barras Horizontales (por tribu, actitudinal): Canvas, Chart.js. Ideal para comparar valores discretos. NO SVG.
+        - Gráfico de Dona (por tribu, NSE): Canvas, Chart.js. Bueno para mostrar proporciones de un todo (3 categorías de NSE). NO SVG.
+        - Gráfico de Barras Verticales (por tribu, Edad): Canvas, Chart.js. Adecuado para comparar la distribución entre varias categorías de edad. NO SVG.
+        - Gráfico Radar (comparativa entre tribus): Canvas, Chart.js. Efectivo para perfiles multivariables. NO SVG.
+
+        Confirmaciones:
+        - NO se utilizó Mermaid JS.
+        - NO se utilizó SVG. Todas las visualizaciones son Canvas (Chart.js) o HTML/CSS.
+
+        Paleta de Colores General:
+        - Primario Oscuro: #0A2463
+        - Hover Navegación: #D8315B
+        - Gris Claro: #e2e8f0
+        - Gris Oscuro: #4a5568
+
+        Colores Específicos por Tribu:
+        - Ritualistas prácticas: #5271FF
+        - Expuestas conscientes: #FF7742
+        - Protectoras de la tribu: #FF7742
+        - Autodidactas del cuidado: #00CADC
+        - Recién llegadas al mundo skin: #00CADC
+    -->
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #F1F1F1; /* Color de fondo actualizado */
+        }
+        .chart-container { /* Contenedor principal para el gráfico actitudinal */
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 380px; 
+            max-height: 55vh;
+        }
+        .small-chart-container { /* Contenedor para los nuevos gráficos de NSE y Edad */
+            position: relative;
+            width: 100%;
+            max-width: 340px; /* Más pequeño para que quepan dos en una fila en md */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; 
+            max-height: 45vh;
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .chart-container {
+                height: 420px;
+            }
+            .small-chart-container {
+                height: 320px;
+            }
+        }
+        .sticky-nav {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+            padding: 2rem; 
+            margin-bottom: 3rem; 
+        }
+        .prose { 
+             color: #4a5568; 
+        }
+        .prose h3 {
+            margin-bottom: 1rem;
+            font-weight: 600; 
+            font-size: 1.5rem; /* text-2xl */
+        }
+         .prose h4 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            font-size: 1.125rem; /* text-lg */
+        }
+        .prose p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-[#0A2463] text-white py-10 px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-3">Perfiles Actitudinales de Consumidoras</h1>
+        <p class="text-lg md:text-xl max-w-3xl mx-auto text-gray-200">Un análisis detallado de las actitudes, demografía y valores que definen a cinco tribus de mujeres en el mercado actual.</p>
+    </header>
+
+    <nav class="sticky-nav bg-white/90 backdrop-blur-md shadow-md">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-center items-center space-x-1 sm:space-x-3 py-3 overflow-x-auto">
+                <a href="#tribu1" class="text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#D8315B] transition-colors duration-300 whitespace-nowrap px-2 py-2">Ritualistas Prácticas</a>
+                <a href="#tribu2" class="text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#D8315B] transition-colors duration-300 whitespace-nowrap px-2 py-2">Expuestas Conscientes</a>
+                <a href="#tribu3" class="text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#D8315B] transition-colors duration-300 whitespace-nowrap px-2 py-2">Protectores de la Tribu</a>
+                <a href="#tribu4" class="text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#D8315B] transition-colors duration-300 whitespace-nowrap px-2 py-2">Autodidactas del Cuidado</a>
+                <a href="#tribu5" class="text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#D8315B] transition-colors duration-300 whitespace-nowrap px-2 py-2">Recién Llegadas</a>
+                <a href="#comparativa" class="text-xs sm:text-sm font-semibold text-gray-700 hover:text-[#D8315B] transition-colors duration-300 whitespace-nowrap px-2 py-2">Comparativa General</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- Tribu 1: Ritualistas Prácticas -->
+        <section id="tribu1" class="card">
+            <h2 class="text-3xl font-bold text-[#0A2463] mb-1">Tribu 1: Ritualistas Prácticas</h2>
+            <p class="text-lg text-gray-500 mb-6">Categoría de Producto: <span class="font-semibold text-gray-700">Cremas corporales</span></p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
+                <div class="prose max-w-none">
+                    <h3 style="color: #5271FF;">Perfil Clave: Autenticidad y Lealtad</h3>
+                    <p>Las Ritualistas Prácticas se definen por una fuerte autoaceptación y una marcada lealtad a sus marcas y productos de belleza habituales. Un <strong>100%</strong> afirma que "Las personas deben aceptarme como soy" y otro <strong>100%</strong> "acostumbra comprar siempre los mismos productos de belleza". A pesar de su pragmatismo, valoran el aprendizaje continuo (<strong>92%</strong>) y el bienestar de sus relaciones cercanas, como el tiempo en familia (<strong>91%</strong>).</p>
+                    <p>El siguiente gráfico destaca algunas de las actitudes más sobresalientes de esta tribu, mostrando su enfoque en la autenticidad, la rutina y el conocimiento práctico.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tribu1AttitudeChart"></canvas>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start pt-6 border-t border-gray-200">
+                <div class="prose max-w-none">
+                    <h4 style="color: #5271FF;">Distribución Socioeconómica (NSE)</h4>
+                    <p>Las Ritualistas Prácticas se concentran mayoritariamente en el NSE Bajo (46.52%), seguido por el NSE Medio (33.64%). Esta distribución podría reforzar su enfoque pragmático y la búsqueda de valor en sus compras.</p>
+                </div>
+                <div class="small-chart-container">
+                    <canvas id="tribu1NseChart"></canvas>
+                </div>
+                <div class="prose max-w-none md:col-start-1 md:row-start-2">
+                     <h4 style="color: #5271FF;">Distribución por Edad</h4>
+                     <p>Este grupo tiene una presencia notable en las franjas de 25-34 años (23.27%) y 55+ (23.34%), indicando una relevancia tanto en etapas de consolidación familiar/profesional como en la madurez.</p>
+                </div>
+                <div class="small-chart-container md:row-start-2">
+                    <canvas id="tribu1AgeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tribu 2: Expuestas Conscientes -->
+        <section id="tribu2" class="card">
+            <h2 class="text-3xl font-bold text-[#0A2463] mb-1">Tribu 2: Expuestas Conscientes</h2>
+            <p class="text-lg text-gray-500 mb-6">Categoría de Producto: <span class="font-semibold text-gray-700">Protectores solares</span></p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
+                 <div class="prose max-w-none">
+                    <h3 style="color: #FF7742;">Perfil Clave: Autocuidado Informado y Aventurero</h3>
+                    <p>Las Expuestas Conscientes se caracterizan por un profundo interés en el autocuidado (<strong>100%</strong> "Me preocupo mucho por mí") y una búsqueda activa de información (<strong>92%</strong> "Es muy importante estar bien informado"). Combinan esta conciencia con un espíritu aventurero, mostrando un alto interés en viajar (<strong>82%</strong>) y aprender sobre otras culturas (<strong>74%</strong>). Son creativas y valoran el conocimiento constante.</p>
+                    <p>El gráfico ilustra las actitudes predominantes de esta tribu, resaltando su compromiso con el bienestar personal, la información y la exploración.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tribu2AttitudeChart"></canvas>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start pt-6 border-t border-gray-200">
+                <div class="prose max-w-none">
+                    <h4 style="color: #FF7742;">Distribución Socioeconómica (NSE)</h4>
+                    <p>Las Expuestas Conscientes se encuentran predominantemente en el NSE Bajo (50.09%), aunque con una participación considerable en el NSE Medio (30.11%). Esto sugiere que su conciencia y búsqueda de información no están limitadas por el nivel socioeconómico.</p>
+                </div>
+                <div class="small-chart-container">
+                    <canvas id="tribu2NseChart"></canvas>
+                </div>
+                 <div class="prose max-w-none md:col-start-1 md:row-start-2">
+                     <h4 style="color: #FF7742;">Distribución por Edad</h4>
+                     <p>Este grupo muestra una distribución etaria amplia, con un pico en el segmento de 55+ (22.80%) y una presencia importante en las franjas más jóvenes de 25-34 años (20.69%) y 18-24 (16.30%).</p>
+                </div>
+                <div class="small-chart-container md:row-start-2">
+                    <canvas id="tribu2AgeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tribu 3: Protectores de la Tribu -->
+        <section id="tribu3" class="card">
+            <h2 class="text-3xl font-bold text-[#0A2463] mb-1">Tribu 3: Protectores de la Tribu</h2>
+            <p class="text-lg text-gray-500 mb-6">Categoría de Producto: <span class="font-semibold text-gray-700">Protectores solares</span></p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
+                <div class="prose max-w-none">
+                    <h3 style="color: #FF7742;">Perfil Clave: Familia, Estabilidad y Tradición</h3>
+                    <p>Para las Protectores de la Tribu, la familia es el pilar fundamental (<strong>100%</strong> "Disfruto pasar tiempo con mi familia"). Buscan estabilidad y valoran el aprendizaje continuo (<strong>87%</strong>) y estar bien informadas (<strong>87%</strong>). Son menos propensas a tomar riesgos (<strong>39%</strong>) y prefieren seguir tradiciones (<strong>73%</strong>). Sus mascotas también ocupan un lugar importante en su núcleo familiar (<strong>86%</strong>).</p>
+                    <p>Este gráfico muestra las actitudes centrales de las Protectores de la Tribu, enfatizando su orientación familiar, su necesidad de información y su aprecio por la estabilidad.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tribu3AttitudeChart"></canvas>
+                </div>
+            </div>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start pt-6 border-t border-gray-200">
+                <div class="prose max-w-none">
+                    <h4 style="color: #FF7742;">Distribución Socioeconómica (NSE)</h4>
+                    <p>Las Protectores de la Tribu tienen su mayor concentración en el NSE Bajo (50.34%), seguido por el NSE Medio (30.42%). Su enfoque en la estabilidad y la familia podría estar vinculado a este perfil socioeconómico.</p>
+                </div>
+                <div class="small-chart-container">
+                    <canvas id="tribu3NseChart"></canvas>
+                </div>
+                 <div class="prose max-w-none md:col-start-1 md:row-start-2">
+                     <h4 style="color: #FF7742;">Distribución por Edad</h4>
+                     <p>Este grupo destaca en el segmento de 55+ (24.32%) y también tiene una fuerte presencia en la franja de 25-34 años (21.62%), lo que podría reflejar un rol familiar que abarca distintas generaciones.</p>
+                </div>
+                <div class="small-chart-container md:row-start-2">
+                    <canvas id="tribu3AgeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tribu 4: Autodidactas del Cuidado -->
+        <section id="tribu4" class="card">
+            <h2 class="text-3xl font-bold text-[#0A2463] mb-1">Tribu 4: Autodidactas del Cuidado</h2>
+            <p class="text-lg text-gray-500 mb-6">Categoría de Producto: <span class="font-semibold text-gray-700">Skin care</span></p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
+                 <div class="prose max-w-none">
+                    <h3 style="color: #00CADC;">Perfil Clave: Inversión en Belleza y Ambición</h3>
+                    <p>Las Autodidactas del Cuidado invierten significativamente en su apariencia y bienestar. Un <strong>100%</strong> "gasta mucho dinero en productos higiénicos y cosméticos" y otro <strong>100%</strong> cree que "Ser bella/o es ser simple y natural". Son ambiciosas, buscando activamente "oportunidades de obtener ingresos adicionales" (<strong>90%</strong>) y consideran a sus mascotas parte de la familia (<strong>90%</strong>). Además, un <strong>85%</strong> "cuida de su salud para mejorar su apariencia".</p>
+                    <p>El gráfico resalta las actitudes distintivas de esta tribu, enfocándose en su alta inversión en belleza, su visión de la naturalidad y su empuje profesional y personal.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tribu4AttitudeChart"></canvas>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start pt-6 border-t border-gray-200">
+                <div class="prose max-w-none">
+                    <h4 style="color: #00CADC;">Distribución Socioeconómica (NSE)</h4>
+                    <p>Las Autodidactas del Cuidado se concentran principalmente en el NSE Bajo (45.61%), pero tienen la proporción más alta de NSE Alto (23.16%) entre todas las tribus, lo que se alinea con su mayor gasto en productos de cuidado.</p>
+                </div>
+                <div class="small-chart-container">
+                    <canvas id="tribu4NseChart"></canvas>
+                </div>
+                 <div class="prose max-w-none md:col-start-1 md:row-start-2">
+                     <h4 style="color: #00CADC;">Distribución por Edad</h4>
+                    <p>Este grupo tiene su mayor concentración en la franja de 25-34 años (25.90%), seguida por el segmento de 18-24 años (19.76%), indicando un fuerte enfoque en el cuidado de la piel en etapas más tempranas de la adultez.</p>
+                </div>
+                <div class="small-chart-container md:row-start-2">
+                    <canvas id="tribu4AgeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tribu 5: Recién Llegadas al Mundo Skin -->
+        <section id="tribu5" class="card">
+            <h2 class="text-3xl font-bold text-[#0A2463] mb-1">Tribu 5: Recién Llegadas al Mundo Skin</h2>
+            <p class="text-lg text-gray-500 mb-6">Categoría de Producto: <span class="font-semibold text-gray-700">Skin care</span></p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-8">
+                <div class="prose max-w-none">
+                     <h3 style="color: #00CADC;">Perfil Clave: Abrumadas pero Oportunistas</h3>
+                    <p>Las Recién Llegadas se sienten superadas por sus responsabilidades, con un <strong>100%</strong> afirmando que "Debido a mi vida personal tan agitada, no me cuido de la manera que debería". A pesar de esto, valoran el aprendizaje (<strong>88%</strong>) y creen en aprovechar las oportunidades (<strong>88%</strong>). La música juega un papel importante en sus vidas (<strong>87%</strong>), y tienden a ser reactivas con su salud, visitando al médico solo cuando están muy enfermas (<strong>81%</strong>).</p>
+                    <p>Este gráfico visualiza las principales actitudes de las Recién Llegadas, destacando su sensación de estar desbordadas junto con su deseo de aprender y su enfoque pragmático ante las oportunidades y la salud.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tribu5AttitudeChart"></canvas>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start pt-6 border-t border-gray-200">
+                <div class="prose max-w-none">
+                    <h4 style="color: #00CADC;">Distribución Socioeconómica (NSE)</h4>
+                    <p>Las Recién Llegadas al Mundo Skin muestran la mayor concentración en el NSE Bajo (52.38%) de todas las tribus. Su interés emergente en el skin care podría estar condicionado por factores económicos.</p>
+                </div>
+                <div class="small-chart-container">
+                    <canvas id="tribu5NseChart"></canvas>
+                </div>
+                 <div class="prose max-w-none md:col-start-1 md:row-start-2">
+                     <h4 style="color: #00CADC;">Distribución por Edad</h4>
+                    <p>Este grupo tiene una fuerte presencia en la franja de 25-34 años (25.87%), seguida por el segmento de 35-44 años (18.12%) y 55+ (17.93%), lo que sugiere un interés en el cuidado de la piel que puede surgir o intensificarse en diferentes etapas de la vida adulta.</p>
+                </div>
+                <div class="small-chart-container md:row-start-2">
+                    <canvas id="tribu5AgeChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section id="comparativa" class="card">
+            <h2 class="text-3xl font-bold text-[#0A2463] mb-2 text-center">Comparativa General de Tribus</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto text-center">El siguiente gráfico de radar ofrece una visión comparativa de las cinco tribus a través de seis dimensiones actitudinales clave. Cada eje representa una afirmación, y la forma del polígono de cada tribu ilustra su perfil único, permitiendo identificar rápidamente sus similitudes y diferencias fundamentales en estas áreas.</p>
+            <div class="chart-container h-[450px] md:h-[600px] max-h-[70vh]">
+                 <canvas id="radarChart"></canvas>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-[#0A2463] text-white mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-300">
+            <p class="text-sm">&copy; 2025 Análisis de Mercado de Consumidoras. Todos los derechos reservados.</p>
+            <p class="text-xs mt-1">Fuente de datos: TGI (Target Group Index) 2025-R1. Este es un ejemplo de infografía con fines demostrativos.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const wrapLabel = (str, maxWidth = 16) => {
+                if (typeof str !== 'string') return '';
+                if (str.length <= maxWidth) {
+                    return str;
+                }
+                const words = str.split(' ');
+                const lines = [];
+                let currentLine = '';
+                words.forEach(word => {
+                    if ((currentLine + ' ' + word).trim().length > maxWidth && currentLine.length > 0) {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        currentLine = (currentLine + ' ' + word).trim();
+                    }
+                });
+                if (currentLine.length > 0) {
+                    lines.push(currentLine);
+                }
+                return lines.length > 0 ? lines : [str];
+            };
+
+            const tooltipTitleCallback = (tooltipItems) => {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) {
+                    return label.join(' ');
+                }
+                return label;
+            };
+
+            const hexToRgba = (hex, alpha = 0.25) => {
+                if(!hex) hex = '#000000'; // Default color if undefined
+                const r = parseInt(hex.slice(1, 3), 16);
+                const g = parseInt(hex.slice(3, 5), 16);
+                const b = parseInt(hex.slice(5, 7), 16);
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            };
+            
+            const generalChartColors = {
+                primaryDark: '#0A2463',
+                lightGray: '#e2e8f0',
+                darkGray: '#4a5568',
+                white: '#FFFFFF'
+            };
+
+            const tribeColors = {
+                ritualistas: '#5271FF',
+                expuestas: '#FF7742',
+                protectoras: '#FF7742',
+                autodidactas: '#00CADC',
+                recianLlegadas: '#00CADC'
+            };
+
+            // --- DATA FROM CSV (TGI-TRIBUSVNb.csv) ---
+            // Column Order: Ritualistas prácticas; Expuestas concientes; Protectores de la tribu; Autodidactas del cuidado; Recién llegadas al mundo skin
+            const nseDataRaw = {
+                labels: ["NSE ALTO", "NSE MEDIO", "NSE BAJO"],
+                datasets: [
+                    [19.84, 19.80, 19.24, 23.16, 18.20], 
+                    [33.64, 30.11, 30.42, 31.23, 29.41], 
+                    [46.52, 50.09, 50.34, 45.61, 52.38]  
+                ]
+            };
+
+            const ageDataRaw = {
+                labels: ["12 A 17", "18 A 24", "25 A 34", "35 A 44", "45 A 54", "55 +"],
+                datasets: [
+                    [7.65, 11.08, 9.66, 9.61, 9.64],   
+                    [14.89, 16.30, 14.69, 19.76, 15.73], 
+                    [23.27, 20.69, 21.62, 25.90, 25.87], 
+                    [17.03, 16.18, 15.83, 17.01, 18.12], 
+                    [13.81, 12.95, 13.88, 13.40, 12.71], 
+                    [23.34, 22.80, 24.32, 14.32, 17.93]  
+                ]
+            };
+
+            const getNseDataForTribe = (tribeIndex) => ({
+                labels: nseDataRaw.labels,
+                values: nseDataRaw.datasets.map(ds => ds[tribeIndex])
+            });
+
+            const getAgeDataForTribe = (tribeIndex) => ({
+                labels: ageDataRaw.labels,
+                values: ageDataRaw.datasets.map(ds => ds[tribeIndex])
+            });
+            // --- END OF DATA FROM CSV ---
+
+
+            const baseChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            color: generalChartColors.darkGray,
+                            font: { weight: '600', family: "'Open Sans', sans-serif" },
+                            callback: function(value) { return value + '%'; }
+                        },
+                        grid: { color: generalChartColors.lightGray, borderColor: generalChartColors.darkGray }
+                    },
+                    y: {
+                        ticks: { color: generalChartColors.darkGray, font: { size: 11, family: "'Open Sans', sans-serif" } },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: generalChartColors.primaryDark,
+                        titleFont: { size: 13, family: "'Open Sans', sans-serif" },
+                        bodyFont: { size: 11, family: "'Open Sans', sans-serif" },
+                        callbacks: {
+                            title: tooltipTitleCallback,
+                            label: function(context) { return `De acuerdo: ${context.raw}%`; }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            };
+            
+            const donutChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { family: "'Open Sans', sans-serif", size: 11 },
+                            color: generalChartColors.darkGray,
+                            boxWidth: 15,
+                            padding:15
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: generalChartColors.primaryDark,
+                        titleFont: { size: 13, family: "'Open Sans', sans-serif" },
+                        bodyFont: { size: 11, family: "'Open Sans', sans-serif" },
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            };
+
+            const ageBarChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'x', // Vertical bars for age
+                 scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 30, // Adjusted max based on new age distribution percentages
+                        ticks: {
+                            color: generalChartColors.darkGray,
+                            font: { family: "'Open Sans', sans-serif" },
+                            callback: function(value) { return value + '%'; }
+                        },
+                        grid: { color: generalChartColors.lightGray }
+                    },
+                    x: {
+                        ticks: { color: generalChartColors.darkGray, font: { size: 11, family: "'Open Sans', sans-serif" } },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: generalChartColors.primaryDark,
+                        titleFont: { size: 13, family: "'Open Sans', sans-serif" },
+                        bodyFont: { size: 11, family: "'Open Sans', sans-serif" },
+                        callbacks: {
+                            title: tooltipTitleCallback,
+                            label: function(context) { return `Porcentaje: ${context.raw}%`; }
+                        }
+                    }
+                },
+                 animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            };
+
+
+            // Tribu 1 Charts
+            const tribu1AttitudeData = {
+                labels: ['Las personas deben aceptarme como soy', 'Acostumbro comprar los mismos productos de belleza', 'Es importante seguir aprendiendo cosas nuevas', 'Disfruto pasar tiempo con mi familia', 'Me considero una persona creativa'].map(l => wrapLabel(l, 25)),
+                values: [100, 100, 92, 91, 80]
+            };
+            new Chart(document.getElementById('tribu1AttitudeChart'), {
+                type: 'bar', data: { labels: tribu1AttitudeData.labels, datasets: [{ data: tribu1AttitudeData.values, backgroundColor: tribeColors.ritualistas, borderRadius: 5, barThickness: 22 }] }, options: JSON.parse(JSON.stringify(baseChartOptions))
+            });
+            const tribu1Nse = getNseDataForTribe(0);
+            new Chart(document.getElementById('tribu1NseChart'), {
+                type: 'doughnut', data: { labels: tribu1Nse.labels, datasets: [{ data: tribu1Nse.values, backgroundColor: [tribeColors.ritualistas, hexToRgba(tribeColors.ritualistas, 0.7), hexToRgba(tribeColors.ritualistas, 0.4)], borderWidth: 1, borderColor: generalChartColors.white }] }, options: JSON.parse(JSON.stringify(donutChartOptions))
+            });
+            const tribu1Age = getAgeDataForTribe(0);
+            new Chart(document.getElementById('tribu1AgeChart'), {
+                type: 'bar', data: { labels: tribu1Age.labels, datasets: [{ data: tribu1Age.values, backgroundColor: tribeColors.ritualistas, borderRadius: 4, barPercentage: 0.7 }] }, options: JSON.parse(JSON.stringify(ageBarChartOptions))
+            });
+
+            // Tribu 2 Charts
+            const tribu2AttitudeData = {
+                labels: ['Me preocupo mucho por mí', 'Es muy importante estar bien informado', 'Es importante seguir aprendiendo cosas nuevas', 'Me encanta la idea de viajar hacia el exterior', 'Me considero una persona creativa'].map(l => wrapLabel(l, 25)),
+                values: [100, 92, 92, 82, 82]
+            };
+            new Chart(document.getElementById('tribu2AttitudeChart'), {
+                type: 'bar', data: { labels: tribu2AttitudeData.labels, datasets: [{ data: tribu2AttitudeData.values, backgroundColor: tribeColors.expuestas, borderRadius: 5, barThickness: 22 }] }, options: JSON.parse(JSON.stringify(baseChartOptions))
+            });
+            const tribu2Nse = getNseDataForTribe(1);
+            new Chart(document.getElementById('tribu2NseChart'), {
+                type: 'doughnut', data: { labels: tribu2Nse.labels, datasets: [{ data: tribu2Nse.values, backgroundColor: [tribeColors.expuestas, hexToRgba(tribeColors.expuestas, 0.7), hexToRgba(tribeColors.expuestas, 0.4)], borderWidth: 1, borderColor: generalChartColors.white }] }, options: JSON.parse(JSON.stringify(donutChartOptions))
+            });
+            const tribu2Age = getAgeDataForTribe(1);
+            new Chart(document.getElementById('tribu2AgeChart'), {
+                type: 'bar', data: { labels: tribu2Age.labels, datasets: [{ data: tribu2Age.values, backgroundColor: tribeColors.expuestas, borderRadius: 4, barPercentage: 0.7 }] }, options: JSON.parse(JSON.stringify(ageBarChartOptions))
+            });
+            
+            // Tribu 3 Charts
+            const tribu3AttitudeData = {
+                labels: ['Disfruto pasar tiempo con mi familia', 'Es importante seguir aprendiendo cosas nuevas', 'Es muy importante estar bien informado', 'Mi mascota es parte de mi familia', 'Reciclar es el deber de toda persona'].map(l => wrapLabel(l, 25)),
+                values: [100, 87, 87, 86, 80]
+            };
+            new Chart(document.getElementById('tribu3AttitudeChart'), {
+                type: 'bar', data: { labels: tribu3AttitudeData.labels, datasets: [{ data: tribu3AttitudeData.values, backgroundColor: tribeColors.protectoras, borderRadius: 5, barThickness: 22 }] }, options: JSON.parse(JSON.stringify(baseChartOptions))
+            });
+            const tribu3Nse = getNseDataForTribe(2);
+            new Chart(document.getElementById('tribu3NseChart'), {
+                type: 'doughnut', data: { labels: tribu3Nse.labels, datasets: [{ data: tribu3Nse.values, backgroundColor: [tribeColors.protectoras, hexToRgba(tribeColors.protectoras, 0.7), hexToRgba(tribeColors.protectoras, 0.4)], borderWidth: 1, borderColor: generalChartColors.white }] }, options: JSON.parse(JSON.stringify(donutChartOptions))
+            });
+            const tribu3Age = getAgeDataForTribe(2);
+            new Chart(document.getElementById('tribu3AgeChart'), {
+                type: 'bar', data: { labels: tribu3Age.labels, datasets: [{ data: tribu3Age.values, backgroundColor: tribeColors.protectoras, borderRadius: 4, barPercentage: 0.7 }] }, options: JSON.parse(JSON.stringify(ageBarChartOptions))
+            });
+
+            // Tribu 4 Charts
+            const tribu4AttitudeData = {
+                labels: ['Gasto mucho dinero en productos cosméticos', 'Ser bella/o es ser simple y natural', 'Busco oportunidades de ingresos adicionales', 'Mi mascota es parte de mi familia', 'Cuido mi salud para mejorar mi apariencia'].map(l => wrapLabel(l, 25)),
+                values: [100, 100, 90, 90, 85]
+            };
+            new Chart(document.getElementById('tribu4AttitudeChart'), {
+                type: 'bar', data: { labels: tribu4AttitudeData.labels, datasets: [{ data: tribu4AttitudeData.values, backgroundColor: tribeColors.autodidactas, borderRadius: 5, barThickness: 22 }] }, options: JSON.parse(JSON.stringify(baseChartOptions))
+            });
+            const tribu4Nse = getNseDataForTribe(3);
+            new Chart(document.getElementById('tribu4NseChart'), {
+                type: 'doughnut', data: { labels: tribu4Nse.labels, datasets: [{ data: tribu4Nse.values, backgroundColor: [tribeColors.autodidactas, hexToRgba(tribeColors.autodidactas, 0.7), hexToRgba(tribeColors.autodidactas, 0.4)], borderWidth: 1, borderColor: generalChartColors.white }] }, options: JSON.parse(JSON.stringify(donutChartOptions))
+            });
+            const tribu4Age = getAgeDataForTribe(3);
+            new Chart(document.getElementById('tribu4AgeChart'), {
+                type: 'bar', data: { labels: tribu4Age.labels, datasets: [{ data: tribu4Age.values, backgroundColor: tribeColors.autodidactas, borderRadius: 4, barPercentage: 0.7 }] }, options: JSON.parse(JSON.stringify(ageBarChartOptions))
+            });
+            
+            // Tribu 5 Charts
+            const tribu5AttitudeData = {
+                labels: ['Mi vida agitada no me deja cuidarme', 'Es importante seguir aprendiendo cosas nuevas', 'Se deben aprovechar las oportunidades', 'La música es muy importante en mi vida', 'Tengo que estar muy enfermo para ir al médico'].map(l => wrapLabel(l, 25)),
+                values: [100, 88, 88, 87, 81]
+            };
+            new Chart(document.getElementById('tribu5AttitudeChart'), {
+                type: 'bar', data: { labels: tribu5AttitudeData.labels, datasets: [{ data: tribu5AttitudeData.values, backgroundColor: tribeColors.recianLlegadas, borderRadius: 5, barThickness: 22 }] }, options: JSON.parse(JSON.stringify(baseChartOptions))
+            });
+            const tribu5Nse = getNseDataForTribe(4);
+            new Chart(document.getElementById('tribu5NseChart'), {
+                type: 'doughnut', data: { labels: tribu5Nse.labels, datasets: [{ data: tribu5Nse.values, backgroundColor: [tribeColors.recianLlegadas, hexToRgba(tribeColors.recianLlegadas, 0.7), hexToRgba(tribeColors.recianLlegadas, 0.4)], borderWidth: 1, borderColor: generalChartColors.white }] }, options: JSON.parse(JSON.stringify(donutChartOptions))
+            });
+            const tribu5Age = getAgeDataForTribe(4);
+            new Chart(document.getElementById('tribu5AgeChart'), {
+                type: 'bar', data: { labels: tribu5Age.labels, datasets: [{ data: tribu5Age.values, backgroundColor: tribeColors.recianLlegadas, borderRadius: 4, barPercentage: 0.7 }] }, options: JSON.parse(JSON.stringify(ageBarChartOptions))
+            });
+
+
+            const radarLabels = [
+                wrapLabel('Las personas deben aceptarme como soy', 20),
+                wrapLabel('Ser bella/o es ser simple y natural', 20),
+                wrapLabel('Gasto mucho dinero en productos cosméticos', 20),
+                wrapLabel('Quiero escalar a la cima más alta en mi carrera', 20),
+                wrapLabel('Tengo un gran sentido aventurero', 20),
+                wrapLabel('Debido a mi vida agitada, no me cuido como debería', 20)
+            ];
+            
+
+            new Chart(document.getElementById('radarChart'), {
+                type: 'radar',
+                data: {
+                    labels: radarLabels,
+                    datasets: [
+                        {
+                            label: 'Ritualistas Prácticas',
+                            data: [100, 100, 49, 60, 61, 52],
+                            borderColor: tribeColors.ritualistas,
+                            backgroundColor: hexToRgba(tribeColors.ritualistas),
+                            pointBackgroundColor: tribeColors.ritualistas,
+                            pointBorderColor: generalChartColors.white,
+                            pointHoverBackgroundColor: generalChartColors.white,
+                            pointHoverBorderColor: tribeColors.ritualistas,
+                            borderWidth: 2, pointRadius: 4, pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Expuestas Conscientes',
+                            data: [80, 63, 34, 61, 65, 46],
+                            borderColor: tribeColors.expuestas,
+                            backgroundColor: hexToRgba(tribeColors.expuestas),
+                            pointBackgroundColor: tribeColors.expuestas,
+                            pointBorderColor: generalChartColors.white,
+                            pointHoverBackgroundColor: generalChartColors.white,
+                            pointHoverBorderColor: tribeColors.expuestas,
+                            borderWidth: 2, pointRadius: 4, pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Protectores de la Tribu',
+                            data: [75, 65, 35, 53, 56, 46],
+                            borderColor: tribeColors.protectoras, 
+                            backgroundColor: hexToRgba(tribeColors.protectoras, 0.26), 
+                            pointBackgroundColor: tribeColors.protectoras,
+                            pointBorderColor: generalChartColors.white,
+                            pointHoverBackgroundColor: generalChartColors.white,
+                            pointHoverBorderColor: tribeColors.protectoras,
+                            borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, borderDash: [5, 5] 
+                        },
+                        {
+                            label: 'Autodidactas del Cuidado',
+                            data: [75, 100, 100, 60, 61, 60],
+                            borderColor: tribeColors.autodidactas,
+                            backgroundColor: hexToRgba(tribeColors.autodidactas),
+                            pointBackgroundColor: tribeColors.autodidactas,
+                            pointBorderColor: generalChartColors.white,
+                            pointHoverBackgroundColor: generalChartColors.white,
+                            pointHoverBorderColor: tribeColors.autodidactas,
+                            borderWidth: 2, pointRadius: 4, pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Recién Llegadas',
+                            data: [76, 67, 42, 57, 58, 100],
+                            borderColor: tribeColors.recianLlegadas, 
+                            backgroundColor: hexToRgba(tribeColors.recianLlegadas, 0.26),
+                            pointBackgroundColor: tribeColors.recianLlegadas,
+                            pointBorderColor: generalChartColors.white,
+                            pointHoverBackgroundColor: generalChartColors.white,
+                            pointHoverBorderColor: tribeColors.recianLlegadas,
+                            borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, borderDash: [5,5] 
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: generalChartColors.lightGray },
+                            grid: { color: generalChartColors.lightGray },
+                            pointLabels: { 
+                                font: { size: 10, weight: '600', family: "'Open Sans', sans-serif" }, 
+                                color: generalChartColors.darkGray,
+                                 callback: function(label) { if (Array.isArray(label)) return label; return wrapLabel(label, 15); }
+                            },
+                            ticks: {
+                                color: generalChartColors.white, backdropColor: generalChartColors.primaryDark,
+                                backdropPadding: 3, font: { size: 9, family: "'Open Sans', sans-serif" }, stepSize: 20
+                            },
+                            suggestedMin: 0, suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                           callbacks: {
+                                title: function(tooltipItems) { return tooltipItems[0].dataset.label; },
+                                label: function(context) {
+                                    let label = context.chart.data.labels[context.dataIndex];
+                                    if (Array.isArray(label)) { label = label.join(' '); }
+                                    return `${label}: ${context.formattedValue}%`;
+                                }
+                           },
+                           backgroundColor: generalChartColors.primaryDark,
+                           titleFont: { size: 13, weight: 'bold', family: "'Open Sans', sans-serif" },
+                           bodyFont: { size: 11, family: "'Open Sans', sans-serif" },
+                        },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: generalChartColors.darkGray,
+                                font: { size: 11, weight: '600', family: "'Open Sans', sans-serif" },
+                                usePointStyle: true, boxWidth: 8, padding: 15
+                            }
+                        }
+                    },
+                    animation: { duration: 1000, easing: 'easeOutExpo' }
+                }
+            });
+
+            document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        const offsetTop = targetElement.offsetTop - 80; 
+                        window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
